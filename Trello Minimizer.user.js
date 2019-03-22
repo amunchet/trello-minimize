@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Trello Minimzer
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Adds button to minimize trello lists
 // @author       Chester Enright
 // @match        https://trello.com/*
@@ -10,11 +10,19 @@
 // ==/UserScript==
 $.noConflict();
 
+// Put the names of lists to be minimzed on startup here!
+document.minimized_lists = ["2019 Goals", "Kilns", "This week"];
+
 var script = document.createElement('script');
 script.type = "text/javascript";
 script.innerHTML = `
 function handleMinimize(item){
-
+var item_name = item.parent().find("h2.list-header-name-assist").html();
+for (var i = 0; i<document.minimized_lists.length; i++){
+         if(document.minimized_lists[i] === item_name){
+         document.minimized_lists(i,1);
+}
+}
 if(item.hasClass("minimizer")){
 item.parentsUntil(".list-wrapper").children(".list-cards").show();
 //item.parentsUntil(".list-wrapper").children("button.minimizer").hide();
@@ -22,21 +30,18 @@ item.removeClass("minimizer");
 }else{
 item.parentsUntil(".list-wrapper").children(".list-cards").hide();
 item.addClass("minimizer");
+document.minimized_lists.push(item_name);
 }
 }
 `;
 document.getElementsByTagName('head')[0].appendChild(script);
 
-
-// Put the names of lists to be minimzed on startup here!
-var minimized_lists = ["2019 Goals", "Kilns", "This week"];
-
 function do_minimize(){
         console.log("In do_minimize");
         $("<button class='minimizer' onclick='javascript:handleMinimize($(this));'>Minimize</button>").insertAfter("a.js-open-card-composer");
         $(".list-header-name").each(function(){
-            for(var i = 0; i<minimized_lists.length; i++){
-                if($(this).attr("aria-label") == minimized_lists[i]){
+            for(var i = 0; i<document.minimized_lists.length; i++){
+                if($(this).attr("aria-label") == document.minimized_lists[i]){
 
                     var list_cards = $(this).parentsUntil(".list-wrapper");
                     //list_cards.addClass("chester_minimized");
@@ -48,19 +53,23 @@ function do_minimize(){
         });
 }
 (function special_minimize() {
-
+    
     'use strict';
-
-
-
+    
     $(window).on("load",function(){
-        do_minimize();
+        setInterval(function(){
+
+            if(!$("button.minimizer").length){
+                do_minimize();
+            }
+
+        },100);
+        //do_minimize();
     });
 
     $(window).on('hashchange', function(e){
         console.log("Changed!");
         do_minimize();
     });
-
 
 })();
