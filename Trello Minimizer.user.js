@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Trello Minimzer
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.2
 // @description  Adds button to minimize trello lists
 // @author       Chester Enright
 // @match        https://trello.com/*
@@ -17,24 +17,33 @@ var script = document.createElement('script');
 script.type = "text/javascript";
 script.innerHTML = `
 function handleMinimize(item){
+
 var item_name = item.parent().find("h2.list-header-name-assist").html();
 for (var i = 0; i<document.minimized_lists.length; i++){
          if(document.minimized_lists[i] === item_name){
-         document.minimized_lists(i,1);
+         document.minimized_lists.splice(i,1);
 }
 }
+
+
 if(item.hasClass("minimizer")){
 item.parentsUntil(".list-wrapper").children(".list-cards").show();
 //item.parentsUntil(".list-wrapper").children("button.minimizer").hide();
 item.removeClass("minimizer");
+
 }else{
 item.parentsUntil(".list-wrapper").children(".list-cards").hide();
 item.addClass("minimizer");
 document.minimized_lists.push(item_name);
+
+
 }
 }
 `;
 document.getElementsByTagName('head')[0].appendChild(script);
+
+
+
 
 function do_minimize(){
         console.log("In do_minimize");
@@ -53,9 +62,11 @@ function do_minimize(){
         });
 }
 (function special_minimize() {
-    
+
     'use strict';
-    
+
+
+
     $(window).on("load",function(){
         setInterval(function(){
 
@@ -71,5 +82,8 @@ function do_minimize(){
         console.log("Changed!");
         do_minimize();
     });
+
+
+
 
 })();
