@@ -11,7 +11,8 @@
 $.noConflict();
 
 // Put the names of lists to be minimzed on startup here!
-document.minimized_lists = ["2019 Goals", "Kilns", "This week"];
+// Also, will minimize any lists that start with a lowercase letter by default
+document.minimized_lists = ["This week", "Butler", "Historical"];
 
 var script = document.createElement('script');
 script.type = "text/javascript";
@@ -50,7 +51,8 @@ function do_minimize(){
         $("<button class='minimizer' onclick='javascript:handleMinimize($(this));'>Minimize</button>").insertAfter("a.js-open-card-composer");
         $(".list-header-name").each(function(){
             for(var i = 0; i<document.minimized_lists.length; i++){
-                if($(this).attr("aria-label") == document.minimized_lists[i]){
+                var first_letter = "" + $(this).attr("aria-label")[0]
+                if($(this).attr("aria-label") == document.minimized_lists[i] || first_letter  == first_letter.toLowerCase() ){
 
                     var list_cards = $(this).parentsUntil(".list-wrapper");
                     //list_cards.addClass("chester_minimized");
