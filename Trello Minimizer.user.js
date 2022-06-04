@@ -8,7 +8,8 @@
 // @grant        none
 // @require http://code.jquery.com/jquery-3.3.1.min.js
 // ==/UserScript==
-$.noConflict();
+
+//$.noConflict();
 
 // Put the names of lists to be minimzed on startup here!
 // Also, will minimize any lists that start with a lowercase letter by default
