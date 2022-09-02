@@ -1,92 +1,89 @@
 // ==UserScript==
-// @name         Trello Minimzer
-// @namespace    http://tampermonkey.net/
-// @version      0.2
-// @description  Adds button to minimize trello lists
-// @author       Chester Enright
-// @match        https://trello.com/*
+// @name         Trello Hide Lists
+// @namespace    https://github.com/shesek/trello-hide-lists
+// @version      0.1
+// @description  Trello Hist Lists
+// @author       FooBarWidget (https://github.com/shesek/trello-hide-lists/issues/1#issuecomment-199693936) and Chester Enright
+// @match        https://trello.com/b/*
 // @grant        none
-// @require http://code.jquery.com/jquery-3.3.1.min.js
 // ==/UserScript==
+/* jshint -W097 */
+'use strict';
 
-//$.noConflict();
+(function () {
+    function start() {
+        var closeList = function (list) {
+            list.querySelector('.list-cards').style.display = 'none';
+        };
 
-// Put the names of lists to be minimzed on startup here!
-// Also, will minimize any lists that start with a lowercase letter by default
-document.minimized_lists = ["This week", "Butler", "Historical"];
+        var openList = function (list) {
+            list.querySelector('.list-cards').style.display = 'block';
+        };
 
-var script = document.createElement('script');
-script.type = "text/javascript";
-script.innerHTML = `
-function handleMinimize(item){
+        var lists = document.getElementById('board').querySelectorAll('div.js-list');
 
-var item_name = item.parent().find("h2.list-header-name-assist").html();
-for (var i = 0; i<document.minimized_lists.length; i++){
-         if(document.minimized_lists[i] === item_name){
-         document.minimized_lists.splice(i,1);
-}
-}
+        for (var i = 0; i < lists.length; i++) {
+            (function () {
+                var list    = lists[i];
+                var close   = document.createElement('button');
 
+                var list_name = list.querySelector("div.js-list-content div.list-header h2").innerHTML;
 
-if(item.hasClass("minimizer")){
-item.parentsUntil(".list-wrapper").children(".list-cards").show();
-//item.parentsUntil(".list-wrapper").children("button.minimizer").hide();
-item.removeClass("minimizer");
+                // Handle minimization of lower case first letters
 
-}else{
-item.parentsUntil(".list-wrapper").children(".list-cards").hide();
-item.addClass("minimizer");
-document.minimized_lists.push(item_name);
+                if (list_name && list_name[0] == list_name[0].toLowerCase()){
+                    closeList(list)
+                    close.innerHTML             = 'Show';
+                    close.setAttribute('class', 'open icon-sm dark-hover');
 
-
-}
-}
-`;
-document.getElementsByTagName('head')[0].appendChild(script);
-
-
-
-
-function do_minimize(){
-        console.log("In do_minimize");
-        $("<button class='minimizer' onclick='javascript:handleMinimize($(this));'>Minimize</button>").insertAfter("a.js-open-card-composer");
-        $(".list-header-name").each(function(){
-            for(var i = 0; i<document.minimized_lists.length; i++){
-                var first_letter = "" + $(this).attr("aria-label")[0]
-                if($(this).attr("aria-label") == document.minimized_lists[i] || first_letter  == first_letter.toLowerCase() ){
-
-                    var list_cards = $(this).parentsUntil(".list-wrapper");
-                    //list_cards.addClass("chester_minimized");
-                    //list_cards.children(".list-header").append("<button class='minimizer' onclick='javascript:handleMinimize($(this));'>Minimize</button>");
-                    list_cards.children(".list-cards").hide();
-                    //console.log(list_cards.html());
+                }else {
+                    close.innerHTML = 'Minimize';
+                    close.setAttribute('class', 'close');
+                    openList(list);
                 }
-            }
-        });
-}
-(function special_minimize() {
 
-    'use strict';
+                close.setAttribute('href', '#');
 
+                close.style.textDecoration  = 'none';
+                //close.style.position        = 'absolute';
+                //close.style.left            = '1px';
+                //close.style.top             = '-5px';
+                close.style.minWidth        = "5rem";
+                close.style.border          = "1px solid #bfbfbe";
+                close.style.paddingTop       = "0.25rem";
+                close.style.marginTop       = "0.25rem";
+                close.style.height          = "2rem";
+                close.style.fontFamily      =  "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans,Ubuntu,Droid Sans,Helvetica Neue,sans-serif";
+                close.style.fontSize        = "10pt";
 
+                //list.querySelector('.list-header').appendChild(close);
+                list.querySelector("a.js-open-card-composer").after(close);
 
-    $(window).on("load",function(){
-        setInterval(function(){
+                close.addEventListener('click', function (e) {
+                    e.preventDefault();
 
-            if(!$("button.minimizer").length){
-                do_minimize();
-            }
+                    if (close.getAttribute('class').match('close')) {
+                        closeList(list);
+                        close.setAttribute('class', 'open icon-sm dark-hover');
+                        close.innerHTML = 'Show';
+                    }
+                    else {
+                        openList(list);
+                        close.setAttribute('class', 'close');
+                        close.innerHTML = 'Minimize';
+                    }
+                });
+            })();
+        }
+    }
 
-        },100);
-        //do_minimize();
-    });
+    function checkReady() {
+        if (document.getElementById('board')) {
+            start();
+        } else {
+            setTimeout(checkReady, 100);
+        }
+    }
 
-    $(window).on('hashchange', function(e){
-        console.log("Changed!");
-        do_minimize();
-    });
-
-
-
-
+    setTimeout(checkReady, 100);
 })();
