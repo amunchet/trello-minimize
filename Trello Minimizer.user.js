@@ -22,6 +22,8 @@
 
         var lists = document.getElementById('board').querySelectorAll('div.js-list');
 
+        var minimized_list = ["Butler", "Historical"]
+
         for (var i = 0; i < lists.length; i++) {
             (function () {
                 var list    = lists[i];
@@ -31,7 +33,8 @@
 
                 // Handle minimization of lower case first letters
 
-                if (list_name && list_name[0] == list_name[0].toLowerCase()){
+
+                if (list_name && (list_name[0] == list_name[0].toLowerCase() || minimized_list.indexOf(list_name.trim()) != -1 )){
                     closeList(list)
                     close.innerHTML             = 'Show';
                     close.setAttribute('class', 'open icon-sm dark-hover');
