@@ -12,6 +12,26 @@
 
 (function () {
     function start() {
+        // Adding CSS fixes to correct new UI update
+        var style = document.createElement("style")
+        style.innerHTML = `
+        body.ff-modernization-update :is(.list-card,.card-composer){
+            border-radius: 4px !important;
+            margin-bottom: 4px !important;
+        }
+        body.ff-modernization-update .list-header{
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        body.ff-modernization-update .list{
+            border-radius: 4px !important;
+        }
+        .board-header-rewrite~.board-canvas #board, body.ff-modernization-update #board{
+            margin-top: 8px !important;
+        }
+        `
+        document.head.appendChild(style);
+        
         var closeList = function (list) {
             list.querySelector('.list-cards').style.display = 'none';
         };
