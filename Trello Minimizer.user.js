@@ -29,6 +29,9 @@
         .board-header-rewrite~.board-canvas #board, body #board{
             margin-top: 8px !important;
         }
+        .board-canvas{
+            margin-top: unset !important;
+        }
         `
         document.head.appendChild(style);
         
