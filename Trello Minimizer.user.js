@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Trello Hide Lists
 // @namespace    https://github.com/shesek/trello-hide-lists
-// @version      0.1
+// @version      0.3
 // @description  Trello Hist Lists
 // @author       FooBarWidget (https://github.com/shesek/trello-hide-lists/issues/1#issuecomment-199693936) and Chester Enright
 // @match        https://trello.com/b/*
@@ -12,38 +12,16 @@
 
 (function () {
     function start() {
-        // Adding CSS fixes to correct new UI update
-        var style = document.createElement("style")
-        style.innerHTML = `
-        body :is(.list-card,.card-composer){
-            border-radius: 4px !important;
-            margin-bottom: 4px !important;
-        }
-        body .list-header{
-            padding-top: 0.5rem !important;
-            padding-bottom: 0.5rem !important;
-        }
-        body .list{
-            border-radius: 4px !important;
-        }
-        .board-header-rewrite~.board-canvas #board, body #board{
-            margin-top: 8px !important;
-        }
-        .board-canvas{
-            margin-top: unset !important;
-        }
-        `
-        document.head.appendChild(style);
         
         var closeList = function (list) {
-            list.querySelector('.list-cards').style.display = 'none';
+            list.classList.add("hidden-content")
         };
 
         var openList = function (list) {
-            list.querySelector('.list-cards').style.display = 'block';
+            list.classList.remove('hidden-content')
         };
 
-        var lists = document.getElementById('board').querySelectorAll('div.js-list');
+        var lists = document.body.querySelectorAll('[data-testid="list"]');
 
         var minimized_list = ["Butler", "Historical"]
 
@@ -52,20 +30,28 @@
                 var list    = lists[i];
                 var close   = document.createElement('button');
 
-                var list_name = list.querySelector("div.js-list-content div.list-header h2").innerHTML;
+                var list_name = list.querySelector("h2[data-testid='list-name']").innerHTML;
 
                 // Handle minimization of lower case first letters
 
 
                 if (list_name && (list_name[0] == list_name[0].toLowerCase() || minimized_list.indexOf(list_name.trim()) != -1 )){
-                    closeList(list)
-                    close.innerHTML             = 'Show';
-                    close.setAttribute('class', 'open icon-sm dark-hover');
+                    try{
+                        closeList(list)
+                        close.innerHTML             = 'Show';
+                        close.setAttribute('class', 'open icon-sm dark-hover');
+                    }catch(e){
+                        console.log(e)
+                    }
 
                 }else {
                     close.innerHTML = 'Minimize';
                     close.setAttribute('class', 'close');
-                    openList(list);
+                    try{
+                        openList(list);
+                    }catch(e){
+                        console.log(e)
+                    }
                 }
 
                 close.setAttribute('href', '#');
@@ -83,18 +69,26 @@
                 close.style.fontSize        = "10pt";
 
                 //list.querySelector('.list-header').appendChild(close);
-                list.querySelector("a.js-open-card-composer").after(close);
+                list.querySelector("button[data-testid='list-add-card-button']").after(close);
 
                 close.addEventListener('click', function (e) {
                     e.preventDefault();
 
                     if (close.getAttribute('class').match('close')) {
-                        closeList(list);
+                        try{
+                            closeList(list);
+                        }catch(e){
+                            console.log(e)
+                        }
                         close.setAttribute('class', 'open icon-sm dark-hover');
                         close.innerHTML = 'Show';
                     }
                     else {
-                        openList(list);
+                        try{
+                            openList(list);
+                        }catch(e){
+                            console.log(e)
+                        }
                         close.setAttribute('class', 'close');
                         close.innerHTML = 'Minimize';
                     }
@@ -102,14 +96,32 @@
             })();
         }
     }
-
-    function checkReady() {
-        if (document.getElementById('board')) {
-            start();
-        } else {
-            setTimeout(checkReady, 100);
+    // Adding CSS fixes to correct new UI update
+    // NOTE: You must use display:none for the spacing.  You cannot use visibility: hidden.
+    var style = document.createElement("style")
+    style.innerHTML = `
+        body [data-testid="list-card"] {
+            padding-bottom: 6px;
         }
-    }
+        body [data-testid="list-card"] div{
+            border-radius: 6px !important;
+        }
+        body [data-testid="list"] {
+            border-radius: 6px !important;
+        }
 
-    setTimeout(checkReady, 100);
+        .hidden-content [data-testid='list-cards'] {
+            display: none !important;
+        }
+        `
+    document.head.appendChild(style);
+
+    addEventListener("load", (event) => {
+        console.log("Loaded...")
+        start()
+    });
+    addEventListener("scroll", (event) => {
+        console.log("Scrolling....")
+        start()
+    });
 })();
