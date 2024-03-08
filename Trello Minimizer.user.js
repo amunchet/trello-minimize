@@ -100,9 +100,16 @@
     // NOTE: You must use display:none for the spacing.  You cannot use visibility: hidden.
     var style = document.createElement("style")
     style.innerHTML = `
-        body [data-testid="list-card"] {
+
+        /* body [data-testid="list-card"] {
             padding-bottom: 6px;
         }
+        */
+
+        body [data-testid="list-cards"] {
+            row-gap: 6px !important;
+        }
+
         body [data-testid="list-card"] div{
             border-radius: 6px !important;
         }
