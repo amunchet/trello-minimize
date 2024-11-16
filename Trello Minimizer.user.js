@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Trello Hide Lists
 // @namespace    https://github.com/shesek/trello-hide-lists
-// @version      0.3
-// @description  Trello Hist Lists
-// @author       FooBarWidget (https://github.com/shesek/trello-hide-lists/issues/1#issuecomment-199693936) and Chester Enright
+// @version      0.5
+// @description  Trello Hide Lists with dynamic updates
+// @author       FooBarWidget
 // @match        https://trello.com/b/*
 // @grant        none
 // ==/UserScript==
@@ -11,124 +11,103 @@
 'use strict';
 
 (function () {
+    // Function to hide a list
+    function closeList(list) {
+        list.classList.add('hidden-content');
+    }
+
+    // Function to show a list
+    function openList(list) {
+        list.classList.remove('hidden-content');
+    }
+
+    // Main function to initialize and apply hiding logic
     function start() {
-        
-        var closeList = function (list) {
-            list.classList.add("hidden-content")
-        };
+        const lists = document.body.querySelectorAll('[data-testid="list"]');
+        const minimizedListNames = ["Butler", "Historical"];
 
-        var openList = function (list) {
-            list.classList.remove('hidden-content')
-        };
+        lists.forEach((list) => {
+            const listNameElement = list.querySelector("h2[data-testid='list-name']");
+            if (!listNameElement) return;
 
-        var lists = document.body.querySelectorAll('[data-testid="list"]');
+            const listName = listNameElement.textContent.trim();
+            let closeButton = list.querySelector('.toggle-button');
 
-        var minimized_list = ["Butler", "Historical"]
+            // Avoid adding duplicate buttons
+            if (!closeButton) {
+                closeButton = document.createElement('button');
+                closeButton.classList.add('toggle-button');
 
-        for (var i = 0; i < lists.length; i++) {
-            (function () {
-                var list    = lists[i];
-                var close   = document.createElement('button');
-
-                var list_name = list.querySelector("h2[data-testid='list-name']").innerHTML;
-
-                // Handle minimization of lower case first letters
-
-
-                if (list_name && (list_name[0] == list_name[0].toLowerCase() || minimized_list.indexOf(list_name.trim()) != -1 )){
-                    try{
-                        closeList(list)
-                        close.innerHTML             = 'Show';
-                        close.setAttribute('class', 'open icon-sm dark-hover');
-                    }catch(e){
-                        console.log(e)
-                    }
-
-                }else {
-                    close.innerHTML = 'Minimize';
-                    close.setAttribute('class', 'close');
-                    try{
-                        openList(list);
-                    }catch(e){
-                        console.log(e)
-                    }
+                // Determine if the list should be minimized
+                if (listName[0] === listName[0].toLowerCase() || minimizedListNames.includes(listName)) {
+                    closeList(list);
+                    closeButton.textContent = 'Show';
+                    closeButton.classList.add('open', 'icon-sm', 'dark-hover');
+                } else {
+                    openList(list);
+                    closeButton.textContent = 'Minimize';
+                    closeButton.classList.add('close');
                 }
 
-                close.setAttribute('href', '#');
+                // Style the button
+                closeButton.style.cssText = `
+                    text-decoration: none;
+                    min-width: 5rem;
+                    border: 1px solid #bfbfbe;
+                    padding-top: 0.25rem;
+                    margin-top: 0.25rem;
+                    height: 2rem;
+                    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Droid Sans, Helvetica Neue, sans-serif;
+                    font-size: 10pt;
+                `;
 
-                close.style.textDecoration  = 'none';
-                //close.style.position        = 'absolute';
-                //close.style.left            = '1px';
-                //close.style.top             = '-5px';
-                close.style.minWidth        = "5rem";
-                close.style.border          = "1px solid #bfbfbe";
-                close.style.paddingTop       = "0.25rem";
-                close.style.marginTop       = "0.25rem";
-                close.style.height          = "2rem";
-                close.style.fontFamily      =  "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans,Ubuntu,Droid Sans,Helvetica Neue,sans-serif";
-                close.style.fontSize        = "10pt";
+                // Add the button after the 'Add a card' button
+                const addCardButton = list.querySelector("button[data-testid='list-add-card-button']");
+                if (addCardButton) {
+                    addCardButton.after(closeButton);
+                }
 
-                //list.querySelector('.list-header').appendChild(close);
-                list.querySelector("button[data-testid='list-add-card-button']").after(close);
-
-                close.addEventListener('click', function (e) {
+                // Add event listener for toggling visibility
+                closeButton.addEventListener('click', (e) => {
                     e.preventDefault();
-
-                    if (close.getAttribute('class').match('close')) {
-                        try{
-                            closeList(list);
-                        }catch(e){
-                            console.log(e)
-                        }
-                        close.setAttribute('class', 'open icon-sm dark-hover');
-                        close.innerHTML = 'Show';
-                    }
-                    else {
-                        try{
-                            openList(list);
-                        }catch(e){
-                            console.log(e)
-                        }
-                        close.setAttribute('class', 'close');
-                        close.innerHTML = 'Minimize';
+                    if (closeButton.classList.contains('close')) {
+                        closeList(list);
+                        closeButton.classList.remove('close');
+                        closeButton.classList.add('open', 'icon-sm', 'dark-hover');
+                        closeButton.textContent = 'Show';
+                    } else {
+                        openList(list);
+                        closeButton.classList.remove('open', 'icon-sm', 'dark-hover');
+                        closeButton.classList.add('close');
+                        closeButton.textContent = 'Minimize';
                     }
                 });
-            })();
-        }
+            }
+        });
     }
-    // Adding CSS fixes to correct new UI update
-    // NOTE: You must use display:none for the spacing.  You cannot use visibility: hidden.
-    var style = document.createElement("style")
-    style.innerHTML = `
 
-        /* body [data-testid="list-card"] {
-            padding-bottom: 6px;
-        }
-        */
-
-        body [data-testid="list-cards"] {
+    // Adding CSS to handle new Trello UI updates
+    const style = document.createElement('style');
+    style.textContent = `
+        body [data-testid='list-cards'] {
             row-gap: 6px !important;
         }
-
-        body [data-testid="list-card"] div{
+        body [data-testid='list-card'] div {
             border-radius: 6px !important;
         }
-        body [data-testid="list"] {
+        body [data-testid='list'] {
             border-radius: 6px !important;
         }
-
         .hidden-content [data-testid='list-cards'] {
             display: none !important;
         }
-        `
+    `;
     document.head.appendChild(style);
 
-    addEventListener("load", (event) => {
-        console.log("Loaded...")
-        start()
-    });
-    addEventListener("scroll", (event) => {
-        console.log("Scrolling....")
-        start()
-    });
+    // Use MutationObserver to watch for changes in the DOM
+    const observer = new MutationObserver(start);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Run the script on page load
+    window.addEventListener('load', start);
 })();
