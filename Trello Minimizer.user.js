@@ -3,7 +3,7 @@
 // @namespace    https://github.com/shesek/trello-hide-lists
 // @version      0.5
 // @description  Trello Hide Lists with dynamic updates
-// @author       FooBarWidget
+// @author       Chester Enright
 // @match        https://trello.com/b/*
 // @grant        none
 // ==/UserScript==
@@ -14,11 +14,19 @@
     // Function to hide a list
     function closeList(list) {
         list.classList.add('hidden-content');
+        const parent = list.parentElement;
+        if (parent) {
+            parent.style.height = 'unset !important';
+        }
     }
 
     // Function to show a list
     function openList(list) {
         list.classList.remove('hidden-content');
+        const parent = list.parentElement;
+        if (parent) {
+            parent.style.height = '100%';
+        }
     }
 
     // Main function to initialize and apply hiding logic
