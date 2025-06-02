@@ -109,6 +109,9 @@
         .hidden-content [data-testid='list-cards'] {
             display: none !important;
         }
+        div [data-testid="list-card-gap"] {
+            display: none !important;
+        }
     `;
     document.head.appendChild(style);
 
