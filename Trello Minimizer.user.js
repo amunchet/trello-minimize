@@ -109,12 +109,14 @@
         .hidden-content [data-testid='list-cards'] {
             display: none !important;
         }
-        div [data-testid="list-card-gap"] {
+        
+    `;
+    /* div [data-testid="list-card-gap"] {
             display: none !important;
         }
-    `;
+    */
     // NOTE: Removing since Trello Fixed styles
-    //document.head.appendChild(style);
+    document.head.appendChild(style);
 
     // Use MutationObserver to watch for changes in the DOM
     const observer = new MutationObserver(start);
