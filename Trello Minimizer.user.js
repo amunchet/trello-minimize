@@ -4,7 +4,7 @@
 // @version      0.5
 // @description  Trello Hide Lists with dynamic updates
 // @author       Chester Enright
-// @match        https://trello.com/b/*
+// @match        https://trello.com/*
 // @grant        none
 // ==/UserScript==
 /* jshint -W097 */
@@ -113,7 +113,8 @@
             display: none !important;
         }
     `;
-    document.head.appendChild(style);
+    // NOTE: Removing since Trello Fixed styles
+    //document.head.appendChild(style);
 
     // Use MutationObserver to watch for changes in the DOM
     const observer = new MutationObserver(start);
