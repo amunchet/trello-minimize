@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Trello Hide Lists
 // @namespace    https://github.com/shesek/trello-hide-lists
-// @version      0.5.3
+// @version      0.5
 // @description  Trello Hide Lists with dynamic updates
 // @author       Chester Enright
 // @match        https://trello.com/*
@@ -96,10 +96,15 @@
 
     // Adding CSS to handle new Trello UI updates
     const style = document.createElement('style');
-    style.textContent = `
-        body [data-testid='list-cards'] {
+    /* body [data-testid='list-cards'] {
             row-gap: 6px !important;
         }
+        div [data-testid="list-card-gap"] {
+            height: 10px !important;
+        }
+    */
+    style.textContent = `
+        
         body [data-testid='list-card'] div {
             border-radius: 6px !important;
         }
@@ -109,13 +114,10 @@
         .hidden-content [data-testid='list-cards'] {
             display: none !important;
         }
+
         
     `;
-    /* div [data-testid="list-card-gap"] {
-            display: none !important;
-        }
-    */
-    // NOTE: Removing since Trello Fixed styles
+
     document.head.appendChild(style);
 
     // Use MutationObserver to watch for changes in the DOM
