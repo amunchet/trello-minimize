@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Trello Hide Lists
 // @namespace    https://github.com/shesek/trello-hide-lists
-// @version      0.5
+// @version      0.5.3
 // @description  Trello Hide Lists with dynamic updates
 // @author       Chester Enright
 // @match        https://trello.com/*
